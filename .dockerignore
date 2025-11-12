@@ -1,0 +1,29 @@
+# Ignora a pasta node_modules (dependências locais)
+node_modules/
+venv/
+
+# Ignora arquivos de log
+*.log
+
+# Ignora arquivos temporários do sistema
+*.swp
+*.tmp
+
+# Ignora diretórios de testes
+tests/
+__pycache__/
+
+# Ignora arquivos de configuração e IDEs
+.vscode/
+.idea/
+.env
+
+# Ignora o próprio .dockerignore e Dockerfile se necessário (opcional)
+.dockerignore
+Dockerfile.dev
+Dockerfile.prod
+Dockerfile.test
+
+# Ignora arquivos de build locais
+dist/
+build/
