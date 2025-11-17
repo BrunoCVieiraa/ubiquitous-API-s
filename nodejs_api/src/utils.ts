@@ -26,15 +26,6 @@ class Utils {
         return hashPwd;
     }
 
-    static async verifyHashPassword(pwd: string, hpwd: string): Promise<boolean> {
-        return await compare(pwd, hpwd);
-    }
-
-    static async getCurrentPwd(userId: number): Promise<string> {
-        const result = await db.select({password: users.password}).from(users).where(eq(users.id, userId)).limit(1);
-        return result[0]?.password ?? "";
-    }
-
     static getUserQuery(){
       return db.select({
             id: users.id,

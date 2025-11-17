@@ -61,7 +61,6 @@ app.get("/users/:id", async (req: Request, res: Response) => {
 
 app.put("/users/:id", async (req: Request, res: Response) => {
     try{
-        const currentPassword = req.body["currentPassword"] ?? "";
         const userId =  Number(req.params["id"] as string);
         if(isNaN(userId)) return res.status(422).send({ data: { status: 422, code: "unprocessable-entity", messgae: "User id must be a number" }});
         const params: User = new User({id: userId, ...req.body});
@@ -71,13 +70,10 @@ app.put("/users/:id", async (req: Request, res: Response) => {
         if(!Utils.verifyEmail(params.email)) return res.status(400).send({data: { status: 400, code: "invalid-email", message: "Invalid email format" }});
         if(!Utils.verifyPassword(params.password)) return res.status(400).send({ data: { status: 400, code: "invalid-password", message: "Invalid password format. It must contains characters, number and at least 6 digits" }}); 
         if(params.user.length <= 0) return res.status(400).send({ data: { status: 400, code: "invalid-user", message: "Invalid user name. This field cannot be empty" }});
-        const userPwd = await Utils.getCurrentPwd(params.id!);
-        const [isUserNameExistQuery, isValidPwd, newPwd] = await Promise.all([
+        const [isUserNameExistQuery, newPwd] = await Promise.all([
             Utils.getUserQuery().where(and(eq(users.user, params.user), ne(users.id!, existUser.id!))).limit(1),
-            Utils.verifyHashPassword(currentPassword, userPwd),
             Utils.hashPassword(params.password!)
         ])
-        if(!isValidPwd) return res.status(403).send({data: {status: 401, code: "unauthorized", message: "Unauthorized, wrong password"}});
         if(isUserNameExistQuery.length > 0) return res.status(409).send({ data: { status: 409, code: "existing-user", message: "This user name is in use" }});
         await db.update(users).set({
             name: params.name,
@@ -91,8 +87,17 @@ app.put("/users/:id", async (req: Request, res: Response) => {
     }
 }); 
 
-app.delete("/users/:id", (req: Request, res: Response) => {
-    
+app.delete("/users/:id", async (req: Request, res: Response) => {
+    try{
+        const userId =  Number(req.params["id"] as string);
+        if(isNaN(userId)) return res.status(422).send({ data: { status: 422, code: "unprocessable-entity", messgae: "User id must be a number" }});
+        const isUserExist = await Utils.getUserQuery().where(eq(users.id, userId)).limit(1);
+        if(isUserExist[0] === undefined || isUserExist.length <= 0 ) return res.status(404).send({ data: { status: 404, code: "user-not-found", message: "User not found"}});
+        await db.delete(users).where(eq(users.id, userId));
+        return res.status(200).send({message: "User deleted with successfully"});
+    }catch(error){
+        return res.status(500).send({ data: { status: 500, code: "internal-server-error", message: "Internal Server Error" }});
+    }
 });
 
 
