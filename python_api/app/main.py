@@ -33,8 +33,6 @@ def error_response(status_code: int, code: str, message: str):
 def create_user(payload: dict = Body(default_factory=dict), db: Session = Depends(database.get_db)):
     try:
         params = UserPayload(payload)
-        if not verify_email(params.email):
-            return error_response(400, "invalid-email", "Invalid email format")
         if not verify_password(params.password):
             return error_response(400, "invalid-password", "Invalid password format. It must contains characters, number and at least 6 digits")
         if len(params.user) <= 0:

@@ -16,7 +16,6 @@ app.use(express.json(), cors({
 app.post("/users", async (req: Request, res: Response) => {
     try{
         const params: User = new User(req.body);
-        if(!Utils.verifyEmail(params.email)) return res.status(400).send({data: { status: 400, code: "invalid-email", message: "Invalid email format" }});
         if(!Utils.verifyPassword(params.password)) return res.status(400).send({ data: { status: 400, code: "invalid-password", message: "Invalid password format. It must contains characters, number and at least 6 digits" }}); 
         if(params.user.length <= 0) return res.status(400).send({ data: { status: 400, code: "invalid-user", message: "Invalid user name. This field cannot be empty" }});
         const isUserNameExistQuery = Utils.getUserQuery().where(eq(users.user, params.user)).limit(1);
