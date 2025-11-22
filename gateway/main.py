@@ -13,7 +13,7 @@ UPSTREAMS = [
     "http://go_api_1:3001",
     "http://python_api_1:3002"
 ]
-RATE_LIMIT = 30
+RATE_LIMIT = 300000
 WINDOW_SEC = 60
 
 CB_FAIL_THRESHOLD = 3
